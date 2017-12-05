@@ -1,0 +1,60 @@
+MAP REDUCE
+==========
+
+Introduction
+------------
+
+A modest implementation.
+
+The framework is composed in 4 operations, 'inputify', 'map', 'reduce'
+and 'ouputify'.
+
+In a first step the 'inputify' operation takes any document to split
+it in chunks of 'struct input_split'. Basically a set of 'struct
+input_split' is a simple linked-list.
+
+An internal process called 'distribute' will be responsible to equally
+share to the map processes, part of the inputs.
+
+The 'map' function is executed in parallel depending the number of
+threads requested. The key/value pair results of map should be 'emit'
+to the in-memory storage. That one is thread-safe and appends the
+values based on the key.
+
+  The in-memory storage concept
+
+             ____ ____ ____ ____ 
+  storage = | k1 | k2 | .. | kn |
+	     ‾|‾‾ ‾‾‾‾ ‾‾‾‾ ‾‾‾‾
+	     _|__ 
+            | v1 |
+	     ‾|‾‾
+     	     _|__ 
+            | v2 |
+	     ‾|‾‾
+
+
+The 'reduce' process receives a reference of the storage, computes the
+result and returns an user defined data-structure which will be then
+passed to the 'outputify' function responsible of managing the result.
+
+
+Hacking note
+------------
+
+Trying to follow:
+
+  https://www.kernel.org/doc/html/v4.10/process/coding-style.html
+
+
+Known issues
+------------
+
+- The in-memory storage is based on a array and take 0(n) to find a
+  key
+- The emit is globally locked by a mutex
+- It's something wrote in few days, the design may be not optimal at
+  all :/
+- ...
+
+  
